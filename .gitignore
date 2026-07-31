@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+env.bak/
+venv.bak/
+
+# Project Specific Data (Massive files!)
+src/dataset/reasoning_dataset/dataset_train.txt
+src/dataset/reasoning_dataset/dataset_train.pt
+*.pt
+*.pth
+
+# Model Checkpoints
+checkpoints/
+
+# IDEs and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter / Colab
+.ipynb_checkpoints/
