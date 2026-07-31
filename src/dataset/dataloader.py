@@ -44,7 +44,8 @@ class TextDataset(Dataset):
                     tokens.extend(self.tokenizer.encode("".join(chunk)))
             
             print("Tokenization complete! Converting to PyTorch Tensor...")
-            tokens = torch.tensor(tokens, dtype=torch.long)
+            # Use zero-copy buffer to avoid fatal memory spikes and CPU lockups in Colab
+            tokens = torch.frombuffer(tokens, dtype=torch.int32).to(torch.long).clone()
             
             size_in_gb = (tokens.element_size() * tokens.nelement()) / (1024 ** 3)
             print(f"Saving {size_in_gb:.2f} GB tensor to Google Drive at {cache_path}...")
