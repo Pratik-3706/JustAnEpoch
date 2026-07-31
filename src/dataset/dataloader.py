@@ -17,31 +17,40 @@ class TextDataset(Dataset):
             print(f"Loading cached dataset from {cache_path}...")
             tokens = torch.load(cache_path)
         else:
-            print("Tokenizing dataset line-by-line to save RAM (this will take a few minutes)...")
+            print("Tokenizing dataset (this is CPU intensive)...")
             tokens = array.array('i')
             with open(filepath, "r", encoding="utf-8") as f:
                 chunk = []
+                lines_processed = 0
                 for line in f:
                     chunk.append(line)
-                    # Process in chunks of 10,000 lines to maximize Rust tokenization speed
-                    # while keeping RAM usage very low.
-                    if len(chunk) >= 10000:
+                    lines_processed += 1
+                    
+                    if len(chunk) >= 5000:
                         text = "".join(chunk)
                         tokens.extend(self.tokenizer.encode(text))
                         chunk = []
+                        if lines_processed % 100000 == 0:
+                            print(f"Processed {lines_processed} lines...")
+                            
                 # Process remaining lines
                 if chunk:
                     tokens.extend(self.tokenizer.encode("".join(chunk)))
             
-            print(f"Saving tokenized cache to {cache_path} for instant loading next time!")
-            torch.save(torch.tensor(tokens, dtype=torch.long), cache_path)
+            print("Tokenization complete! Converting to PyTorch Tensor...")
+            tokens = torch.tensor(tokens, dtype=torch.long)
+            
+            print(f"Saving 1.4GB tensor to Google Drive at {cache_path}...")
+            torch.save(tokens, cache_path)
+            print("Save complete!")
 
-
+        print("Building sequence examples...")
         self.examples = []
         for i in range (0, len(tokens)- max_length, max_length):
             chunk = tokens[i : i + max_length +1 ]
             if len(chunk) == max_length + 1:
                 self.examples.append(chunk)
+        print("Dataset loaded successfully!")
 
     def __len__(self):
         return len(self.examples)
