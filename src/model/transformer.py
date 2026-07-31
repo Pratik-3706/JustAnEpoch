@@ -60,5 +60,31 @@ class Transformer(nn.Module):
         # 4. Final normalization and projection to vocabulary logits
         x_out = self.ln_f(x_out)
         logits = self.head(x_out)  # Shape: (Batch, Time, vocab_size)
-        
         return logits
+
+    @torch.no_grad()
+    def generate(self, idx, max_new_tokens, temperature=1.0):
+        """
+        Autoregressively generate new tokens.
+        idx is (Batch, Time) array of indices in the current context
+        """
+        for _ in range(max_new_tokens):
+            # Crop context to block_size to prevent crashing
+            idx_cond = idx if idx.size(1) <= self.block_size else idx[:, -self.block_size:]
+            
+            # Forward pass
+            logits = self(idx_cond)
+            
+            # Pluck the logits at the final step and scale by temperature
+            logits = logits[:, -1, :] / temperature
+            
+            # Apply softmax to get probabilities
+            probs = torch.nn.functional.softmax(logits, dim=-1)
+            
+            # Sample the next token
+            idx_next = torch.multinomial(probs, num_samples=1)
+            
+            # Append to the sequence
+            idx = torch.cat((idx, idx_next), dim=1)
+            
+        return idx
