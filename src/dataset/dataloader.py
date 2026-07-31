@@ -13,10 +13,16 @@ class TextDataset(Dataset):
         from pathlib import Path
         cache_path = Path(filepath).with_suffix('.pt')
         
+        tokens = None
         if cache_path.exists():
-            print(f"Loading cached dataset from {cache_path}...")
-            tokens = torch.load(cache_path)
-        else:
+            try:
+                print(f"Loading cached dataset from {cache_path}...")
+                tokens = torch.load(cache_path)
+            except Exception as e:
+                print(f"Cache file corrupted or incomplete (Error: {e}). Rebuilding cache...")
+                tokens = None
+                
+        if tokens is None:
             print("Tokenizing dataset (this is CPU intensive)...")
             tokens = array.array('i')
             with open(filepath, "r", encoding="utf-8") as f:
