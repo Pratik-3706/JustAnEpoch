@@ -16,9 +16,23 @@ from tqdm import tqdm
 def setup_colab():
     try:
         from google.colab import drive
-        print("Mounting Google Drive...")
-        drive.mount('/content/drive')
         
+        # Check if already mounted to avoid crashing
+        if not os.path.exists('/content/drive/MyDrive'):
+            print("Attempting to mount Google Drive...")
+            try:
+                drive.mount('/content/drive')
+            except AttributeError:
+                print("\n" + "="*60)
+                print("⚠️ ERROR: Cannot mount Google Drive from a python script!")
+                print("Please create a new Colab cell and run this first:")
+                print("from google.colab import drive")
+                print("drive.mount('/content/drive')")
+                print("="*60 + "\n")
+                return False
+        else:
+            print("Google Drive is already mounted!")
+            
         # Add the project root to sys.path so imports work in Colab
         project_root = "/content/JustAnEpoch"
         if project_root not in sys.path:
