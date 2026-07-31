@@ -11,5 +11,10 @@ A simple, from-scratch implementation of a GPT-style Transformer language model 
 - `src/train.py`: The main PyTorch training loop for local execution.
 - `colab_train.py`: A training script for Google Colab (uses HuggingFace for faster tokenization and saves checkpoints to Google Drive).
 
-## Credits
+## Objective
 Built as a personal learning project to deeply understand the mechanics of Large Language Models (LLMs), tokenization algorithms, and autoregressive training loops.
+
+## Credits & Acknowledgements
+- **OpenAI:** For the original GPT-2 architecture and Byte-Pair Encoding algorithm that this project implements from scratch.
+- **Teknium:** For the excellent `OpenHermes-2.5` dataset used to train the reasoning capabilities of this model.
+- **PyTorch & HuggingFace:** For the backend hardware acceleration (`nn.TransformerEncoder` SDPA) and the blazing fast Rust tokenization engine used in Colab.
