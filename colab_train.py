@@ -18,7 +18,7 @@ def setup_colab():
         from google.colab import drive
         
         # Check if already mounted to avoid crashing
-        if not os.path.exists('/content/drive/MyDrive'):
+        if not os.path.exists('/content/drive/MyDrive') and not os.path.exists('/content/drive'):
             print("Attempting to mount Google Drive...")
             try:
                 drive.mount('/content/drive')
@@ -67,7 +67,7 @@ def train_colab():
     drive_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_path = drive_dir / "latest_checkpoint.pt"
     
-    # We will also store the dataset in Drive so you don't have to redownload 1GB every time!
+    
     dataset_path = drive_dir / "dataset" / "dataset_train.txt"
     dataset_path.parent.mkdir(parents=True, exist_ok=True)
     
@@ -76,7 +76,7 @@ def train_colab():
         print("Downloading 900MB dataset into Colab...")
         download_and_save_dataset(save_dir=dataset_path.parent)
     
-    # 2 & 3. Train a PRIVATE HuggingFace Tokenizer (Super fast, 100% Offline)
+    
     try:
         from tokenizers import Tokenizer, models, pre_tokenizers, decoders, trainers
     except ImportError:
@@ -87,7 +87,7 @@ def train_colab():
     hf_tokenizer_path = drive_dir / "private_colab_tokenizer.json"
     
     if not hf_tokenizer_path.exists():
-        print("Training a 100% PRIVATE HuggingFace Tokenizer on your full 1GB dataset...")
+        print("Training a HuggingFace Tokenizer on full 1GB dataset...")
         print("This runs locally on the Colab machine. NO DATA is uploaded to HuggingFace!")
         
         raw_tokenizer = Tokenizer(models.BPE())
