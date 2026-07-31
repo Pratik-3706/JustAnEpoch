@@ -1,11 +1,4 @@
-# PyTorch for the core model and training loop
 torch
-
-# HuggingFace Datasets (used to download the 1GB text corpus)
 datasets
-
-# Progress bars
 tqdm
-
-# HuggingFace Tokenizers (Used in Colab for lightning-fast Rust tokenization)
 tokenizers
