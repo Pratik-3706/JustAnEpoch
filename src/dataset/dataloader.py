@@ -3,6 +3,7 @@ PyTorch Dataset and DataLoader for the text data.
 """
 import torch
 from torch.utils.data import Dataset, DataLoader
+import array
 
 class TextDataset(Dataset):
     def __init__(self, filepath, tokenizer, max_length):
@@ -17,7 +18,7 @@ class TextDataset(Dataset):
             tokens = torch.load(cache_path)
         else:
             print("Tokenizing dataset line-by-line to save RAM (this will take a few minutes)...")
-            tokens = []
+            tokens = array.array('i')
             with open(filepath, "r", encoding="utf-8") as f:
                 chunk = []
                 for line in f:
@@ -33,7 +34,8 @@ class TextDataset(Dataset):
                     tokens.extend(self.tokenizer.encode("".join(chunk)))
             
             print(f"Saving tokenized cache to {cache_path} for instant loading next time!")
-            torch.save(tokens, cache_path)
+            torch.save(torch.tensor(tokens, dtype=torch.long), cache_path)
+
 
         self.examples = []
         for i in range (0, len(tokens)- max_length, max_length):
@@ -47,6 +49,6 @@ class TextDataset(Dataset):
     def __getitem__(self, idx):
         chunk = self.examples[idx]
 
-        x = torch.tensor(chunk[:-1], dtype=torch.long)
-        y = torch.tensor(chunk[1:], dtype=torch.long)
+        x = torch.as_tensor(chunk[:-1], dtype=torch.long)
+        y = torch.as_tensor(chunk[1:], dtype=torch.long)
         return x, y
