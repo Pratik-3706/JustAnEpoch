@@ -40,7 +40,8 @@ class TextDataset(Dataset):
             print("Tokenization complete! Converting to PyTorch Tensor...")
             tokens = torch.tensor(tokens, dtype=torch.long)
             
-            print(f"Saving 1.4GB tensor to Google Drive at {cache_path}...")
+            size_in_gb = (tokens.element_size() * tokens.nelement()) / (1024 ** 3)
+            print(f"Saving {size_in_gb:.2f} GB tensor to Google Drive at {cache_path}...")
             torch.save(tokens, cache_path)
             print("Save complete!")
 
