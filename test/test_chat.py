@@ -24,11 +24,15 @@ def main():
     print(f"Using device: {device}")
     
     test_dir = Path(__file__).parent
-    checkpoint_path = test_dir / "latest_checkpoint.pt"
-    tokenizer_path = test_dir / "private_colab_tokenizer.json"
+    pt_files = list(test_dir.glob("*.pt"))
+    if not pt_files:
+        print("Error: Could not find any .pt checkpoint in the test folder.")
+        return
+    checkpoint_path = pt_files[0]
     
-    if not checkpoint_path.exists() or not tokenizer_path.exists():
-        print("Error: Could not find checkpoint or tokenizer in the test folder.")
+    tokenizer_path = test_dir / "private_colab_tokenizer.json"
+    if not tokenizer_path.exists():
+        print("Error: Could not find tokenizer in the test folder.")
         return
         
     print("Loading tokenizer...")

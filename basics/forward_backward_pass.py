@@ -15,15 +15,15 @@ import torch
 #create our input data X
 X = torch.randn(N, D_in)
 
-#create our ture target lables y using the "true" W and b
+#create our true target labels y using the "true" W and b
 #the true w is 2.0 and b is 1.0
 true_W = torch.tensor([[2.0]])
 true_b = torch.tensor(1.0)
 y_true = X @ true_W + true_b + torch.randn(N, D_out) * 0.1 # add a little noise
 
 
-#initilize parameters with random values.
-#shapes must be correct for matrix multiplucation
+#initialize parameters with random values.
+#shapes must be correct for matrix multiplication
 
 W = torch.randn(D_in, D_out, requires_grad=True)
 b = torch.randn(1, requires_grad=True)
@@ -37,7 +37,7 @@ y_hat = X @ W + b
 print(f"Predictions (y_hat):\n {y_hat}") # not accurate 
 
 
-# compair guess to truth 
+# compare guess to truth 
 # MSE ==> Mean Square Error (most common loss function)
 """
 for every prediction, find the difference (y_hat - y)
@@ -51,17 +51,17 @@ print(f"\nloss (single scorecard number): {loss}")
 
 
 # travel backward from loss and calculate gradients for all parameters with 'requires_grad = True'
-# the gradint of the loss w.r.t weight W 
-# the gradint of the loss w.r.t bias b 
+# the gradient of the loss w.r.t weight W 
+# the gradient of the loss w.r.t bias b 
 
 loss.backward() # compute gradients
 
-# the geadients are now stored in the .grad attribute
+# the gradients are now stored in the .grad attribute
 print(f"gradient for W:\n {W.grad}\n")
 print(f"gradient for b:\n {b.grad}")
 
 
-#traning
+#training
 """
 θ_{t+1} = θ_t - η * ∇_θ L
 
@@ -81,7 +81,7 @@ learning_rate , epochs = 0.01 ,500 # more would be better i guess
 # Re-initialize parameters
 W, b = torch.randn(1, 1, requires_grad = True), torch.randn(1, requires_grad=True)
 """
-#traning loop 
+#training loop 
 for epoch in range (epochs): 
     #forward pass and loss
     y_hat = X @ W + b
@@ -94,7 +94,7 @@ for epoch in range (epochs):
     with torch.no_grad():
         W -= learning_rate * W.grad; b -= learning_rate * b.grad
 
-    #zero  gradints 
+    #zero  gradients 
     W.grad.zero_(); b.grad.zero_()
 
     if epoch % 10 == 0:
@@ -184,15 +184,15 @@ print(f"\n======= NN.DROPOUT ========")
 dropout_layer = torch.nn.Dropout(p=0.5)
 input_tensor = torch.ones(1, 10)
 
-#activates dropout for traning
+#activates dropout for training
 dropout_layer.train()
 output_during_train = dropout_layer(input_tensor)
 
-#deactivate dropout for evaluvation/ prediction
+#deactivate dropout for evaluation/ prediction
 dropout_layer.eval()
 output_during_eval = dropout_layer(input_tensor)
 
-print(f"output during traning: {output_during_train}")
+print(f"output during training: {output_during_train}")
 print(f"output during eval: {output_during_eval}")
 
 
@@ -201,7 +201,7 @@ print(f"\n======= nn.Module========")
 import torch.nn as nn
 
 #inherit  from nn.Module
-class LinerRegressionModel(nn.Module):
+class LinearRegressionModel(nn.Module):
     def __init__(self, input_features, out_features):
         super().__init__()
         # in the constructor define the layer we will use.
@@ -210,7 +210,7 @@ class LinerRegressionModel(nn.Module):
         # in the forward pass, we connect the layers
         return self.linear_layer(x)
 #instantiate the model 
-model = LinerRegressionModel(input_features = 1, out_features= 1)
+model = LinearRegressionModel(input_features = 1, out_features= 1)
 print("model architecture:")
 print(model)
 
@@ -221,7 +221,7 @@ import torch.optim as optim
 learning_rate = 0.01
 
 # create an Adam Optimizer
-# pass model.parameters() to tell it whic tensors to manage.PendingDeprecationWarning
+# pass model.parameters() to tell it which tensors to manage.
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # also grab a pre-built loss function from torch.nn
@@ -238,8 +238,8 @@ epochs = 100
 for epoch in range (epochs):
     y_hat = model(X) #forward pass
     loss = loss_fn(y_hat, y_true) # calculate loss
-    optimizer.zero_grad() # zero the gradints
-    loss.backward() # compute gradints
+    optimizer.zero_grad() # zero the gradients
+    loss.backward() # compute gradients
     optimizer.step()# update the parameter
 
     if epoch % 10 == 0:

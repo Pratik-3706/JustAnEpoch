@@ -2,7 +2,6 @@
 
 from numpy import indices
 import torch
-from networkx.algorithms.approximation import traveling_salesman
 import torch
 
 # input: a std py list
@@ -17,8 +16,8 @@ one = torch.ones(shape) #tensor of 1's
 zeros = torch.zeros(shape) #tensor of 0's
 random = torch.randn(shape) #tensor of 0's
 
-print(f"random tesnor: \n {random}")
-print("================ mimikck ==========================")
+print(f"random tensor: \n {random}")
+print("================ mimic ==========================")
 
 # creation by mimicking another tensor =======================
 template = torch.tensor([[1,2],[3,4]]) #template            ||
@@ -39,14 +38,14 @@ print(f"shape: {tensor.device}")
 print("================ autograd ==========================")
 # auto grad (automatic differentiation)
 # it will automatically calculate the gradient of the tensor
-# off by default, to tell pythorch its a learnable parameter
+# off by default, to tell pytorch it's a learnable parameter
 requires_grad = True
 # a std tensor
 x_data = torch.tensor([[1.,2.],[3.,4.,]])
-# a parameter tensor (we need gradints)
+# a parameter tensor (we need gradients)
 w = torch.tensor([[1.0],[2.0]], requires_grad = True)
-print(f"data tensor requires_rad: {x_data.requires_grad}")
-print(f"parameter tensor requires_rad: {w.requires_grad}")
+print(f"data tensor requires_grad: {x_data.requires_grad}")
+print(f"parameter tensor requires_grad: {w.requires_grad}")
 
 print("================ building the graph ==========================")
 # z = x * y, where y = a + b
@@ -60,11 +59,11 @@ print(f"result: {z}")
 print(f"grad_fn for z: {z.grad_fn}")
 print(f"grad_fn for y: {y.grad_fn}")
 print(f"grad_fn for a: {a.grad_fn}\n")
-print("================ verbs * ve @ ==========================")
+print("================ verbs * vs @ ==========================")
 
 # verbs
 # ('*') element wise multiplication
-#rule: tensor most have exact same shape 
+#rule: tensors must have exact same shape 
 a = torch.tensor([[1,2],[3,4]])
 b = torch.tensor([[10, 20], [30, 40]])
 
@@ -83,10 +82,10 @@ m2 = torch.tensor([[7,8],[9, 10], [11, 12]])
 
 matrix_prod = m1 @ m2
 print(f"matrix product {matrix_prod}") 
-# will always ise the @ for linear layer, y = XW + b
+# will always use the @ for linear layer, y = XW + b
 
 print("================ reduction/ dim ==========================")
-#default dehavior: collapse the entire tensor
+#default behavior: collapse the entire tensor
 
 scores = torch.tensor([[10., 20., 30., ], [5., 10., 15.,]])
 
@@ -99,7 +98,7 @@ print (f"{average_score}")
 scores tensor: 2 students, 3 assignments
 a simple rule for 2d tensors: 
 dim 0 ==> collapses the rows. operates "vertically" ↓
-dim 1 ==> collapses the colimns. operates "horizontally" ↑ 
+dim 1 ==> collapses the columns. operates "horizontally" → 
 """
 scores = torch.tensor([[10., 20., 30., ], [5., 10., 15.,]])
 # to get the avg for each assignments, we collapse the student dimension (dim = 0)
@@ -121,7 +120,7 @@ VISUALIZING THE COLLAPSE
 """
 
 
-print("================ basoc indexing ==========================")
+print("================ basic indexing ==========================")
 
 x = torch.arange(12).reshape(3,4)
 """
@@ -133,7 +132,7 @@ x = torch.arange(12).reshape(3,4)
 col_2 = x[:,2]
 print(f"{col_2}")
 
-# ARGMAX  find index of the higgest value
+# ARGMAX  find index of the highest value
 
 scores = torch.tensor(
     # the best score is at index 3
@@ -148,7 +147,7 @@ best_indices = torch.argmax(scores, dim=1)
 print(f"best score for each: {best_indices}")
 
 # torch.gather() : if we need something specific 
-# ex: from row 0, get emement at column 2
+# ex: from row 0, get element at column 2
 # from row 1, get the element at column 0
 # from row 2, get the element at column 3
 
@@ -161,6 +160,6 @@ data = torch.tensor([
 # list of which column to get from each row
 indices_to_select = torch.tensor([[2],[0],[3]])
 
-#grather from data along dim = 1 (cloumns)
+#gather from data along dim = 1 (columns)
 selected_val = torch.gather(data, dim =1, index =indices_to_select)
 print(f"{selected_val}")
