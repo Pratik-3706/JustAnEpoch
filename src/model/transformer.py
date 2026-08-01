@@ -40,7 +40,7 @@ class Transformer(nn.Module):
         self.token_embedding.weight = self.head.weight
 
 
-    # only god know how its wokrking right now.
+    # only god knows how its working right now.
 
     def forward(self, x):
         b, t = x.shape

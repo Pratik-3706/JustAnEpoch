@@ -27,3 +27,7 @@ checkpoints/
 
 # Jupyter / Colab
 .ipynb_checkpoints/
+
+# Test downloaded weights
+test/*.pt
+test/*.json
