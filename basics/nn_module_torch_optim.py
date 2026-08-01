@@ -35,3 +35,5 @@ loss.backward()
 #3 
 optimizer.step()
 """
+
+# lol i have more questions than answers. 

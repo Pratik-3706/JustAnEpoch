@@ -65,7 +65,8 @@ def train_colab():
     # Persistent Drive Directory
     drive_dir = Path("/content/drive/MyDrive/JustAnEpoch_Checkpoints")
     drive_dir.mkdir(parents=True, exist_ok=True)
-    checkpoint_path = drive_dir / "latest_checkpoint.pt"
+    # Use v2 to avoid crashing from the old v1 checkpoint
+    checkpoint_path = drive_dir / "latest_checkpoint_v2.pt"
     
     
     dataset_path = drive_dir / "dataset" / "dataset_train.txt"
@@ -127,9 +128,20 @@ def train_colab():
     model = Transformer(vocab_size=tokenizer.vocab_size, block_size=block_size)
     model.to(device)
     
-    # 6. Optimizer
-    optimizer = optim.AdamW(model.parameters(), lr=3e-4)
+    # 6. Optimizer & AMP & Scheduler
+    decay_params = [p for n, p in model.named_parameters() if p.dim() >= 2 and p.requires_grad]
+    nodecay_params = [p for n, p in model.named_parameters() if p.dim() < 2 and p.requires_grad]
+    optim_groups = [
+        {'params': decay_params, 'weight_decay': 0.1},
+        {'params': nodecay_params, 'weight_decay': 0.0}
+    ]
+    optimizer = optim.AdamW(optim_groups, lr=3e-4)
     criterion = nn.CrossEntropyLoss()
+    scaler = torch.cuda.amp.GradScaler()
+    
+    epochs = 10
+    total_steps = epochs * len(dataloader)
+    scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=3e-4, total_steps=total_steps, pct_start=0.05)
     
     # 7. Checkpoint Loading from Google Drive
     start_epoch = 0
@@ -138,6 +150,11 @@ def train_colab():
         checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        if 'scheduler_state_dict' in checkpoint:
+            scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        if 'scaler_state_dict' in checkpoint:
+            scaler.load_state_dict(checkpoint['scaler_state_dict'])
+            
         start_epoch = checkpoint['epoch']
         
         # If the epoch was fully completed, start the next one
@@ -161,13 +178,20 @@ def train_colab():
             x, y = x.to(device), y.to(device)
             
             optimizer.zero_grad()
-            logits = model(x)
             
-            B, T, C = logits.shape
-            loss = criterion(logits.view(B * T, C), y.view(B * T))
+            # Forward pass with Mixed Precision
+            with torch.autocast(device_type=device, dtype=torch.float16):
+                logits = model(x)
+                B, T, C = logits.shape
+                loss = criterion(logits.view(B * T, C), y.view(B * T))
             
-            loss.backward()
-            optimizer.step()
+            # Backward pass with AMP and Gradient Clipping
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            scaler.step(optimizer)
+            scaler.update()
+            scheduler.step()
             
             total_loss += loss.item()
             progress_bar.set_postfix({'loss': f"{loss.item():.4f}"})
@@ -180,6 +204,9 @@ def train_colab():
                     'epoch_completed': False,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
+                    'scheduler_state_dict': scheduler.state_dict(),
+                    'scaler_state_dict': scaler.state_dict(),
+                    'loss': loss.item(),
                 }, checkpoint_path)
                 print(f" [Mid-Epoch Checkpoint saved to Drive at step {step+1}]")
             
@@ -189,6 +216,8 @@ def train_colab():
             'epoch_completed': True,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
+            'scheduler_state_dict': scheduler.state_dict(),
+            'scaler_state_dict': scaler.state_dict(),
             'loss': total_loss / len(dataloader),
         }, checkpoint_path)
         print(f"Epoch {epoch} complete! Checkpoint saved to Drive.")

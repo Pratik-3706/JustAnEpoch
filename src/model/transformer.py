@@ -1,6 +1,7 @@
 """
 Transformer architecture implementation.
 """
+import math
 import torch
 import torch.nn as nn
 
@@ -27,8 +28,8 @@ class Transformer(nn.Module):
             nhead= n_head,
             dim_feedforward= 4 * d_model,
             dropout= dropout,
-            batch_first= True
-
+            batch_first= True,
+            norm_first= True
         )
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layer)
 
@@ -38,6 +39,22 @@ class Transformer(nn.Module):
         self.head = nn.Linear(d_model, vocab_size, bias=False)
 
         self.token_embedding.weight = self.head.weight
+
+        # Apply custom weight initialization
+        self.apply(self._init_weights)
+        
+        # Apply special scaled init to the residual projections, per GPT-2 paper
+        for pn, p in self.named_parameters():
+            if pn.endswith('linear2.weight') or pn.endswith('out_proj.weight'):
+                torch.nn.init.normal_(p, mean=0.0, std=0.02 / math.sqrt(2 * n_layer))
+
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+        elif isinstance(module, nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
 
     # only god knows how its working right now.
