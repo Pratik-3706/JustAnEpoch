@@ -54,6 +54,8 @@ def main():
     print("\n" + "="*50)
     print("🤖 MODEL READY! Type 'quit' or 'exit' to stop.")
     print("Note: The model is only at 3k steps (Loss ~4), so it will likely speak gibberish!")
+    system_prompt = "You are an AI assistant."
+    print(f"System Prompt: {system_prompt}")
     print("="*50 + "\n")
     
     while True:
@@ -66,7 +68,11 @@ def main():
                 continue
                 
             # Format as conversation so the model understands
-            prompt = f"<HUMAN> {user_input}\n<GPT> "
+            if system_prompt:
+                prompt = f"<SYSTEM>\n{system_prompt}\n<HUMAN> {user_input}\n<GPT> "
+            else:
+                prompt = f"<HUMAN> {user_input}\n<GPT> "
+                
             input_ids = tokenizer.encode(prompt).ids
             x = torch.tensor(input_ids, dtype=torch.long).unsqueeze(0).to(device)
             
