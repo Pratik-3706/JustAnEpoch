@@ -18,6 +18,7 @@ src/dataset/reasoning_dataset/dataset_train.pt
 
 # Model Checkpoints
 checkpoints/
+stupidlm_checkpoints/
 
 # IDEs and Editor files
 .vscode/
