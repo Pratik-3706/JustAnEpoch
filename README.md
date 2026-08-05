@@ -1,8 +1,13 @@
 # StupidLM
 
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-StupidLm-yellow)](https://huggingface.co/Pratik-3706/StupidLm)
+
 A simple, from-scratch implementation of a GPT-style Transformer language model and Byte-Pair Encoding (BPE) Tokenizer in pure Python and PyTorch.
 
 > **Note:** This repository was built from the ground up from first principles. It's just for my understanding only!
+
+### Pretrained Weights
+If for some reason you want to download a 48M parameter model that generates confident gibberish, the weights are available on Hugging Face: **[Pratik-3706/StupidLm](https://huggingface.co/Pratik-3706/StupidLm)**. Don't say we didn't warn you.
 
 ## Project Structure
 - `src/model/transformer.py`: The core Transformer architecture using causal masking and weight-tied embeddings.
